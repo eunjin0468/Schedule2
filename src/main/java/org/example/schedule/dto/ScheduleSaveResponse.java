@@ -14,7 +14,6 @@ public class ScheduleSaveResponse {
     private final LocalDateTime createTime;
     private final LocalDateTime modifiedAt;
 
-    //request와 달리 생성자 생성 필요
     public ScheduleSaveResponse(Long id, String title, String content, String author, LocalDateTime createTime, LocalDateTime modifiedAt) {
         this.id = id;
         this.title = title;
