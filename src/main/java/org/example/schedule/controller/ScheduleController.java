@@ -40,14 +40,13 @@ public class ScheduleController {
 
     @PutMapping("/schedules/{scheduleId}")
     public ResponseEntity<ScheduleUpdateResponse> updateSchedule(
-            @PathVariable Long scheduleId, //null가능
+            @PathVariable Long scheduleId,
             @RequestBody ScheduleUpdateRequest request
     ){
         return ResponseEntity.ok(scheduleService.update(scheduleId, request));
     }
 
     @DeleteMapping("/schedules/{scheduleId}")
-    //@PostMapping("/schedules/{scheduleId}/delete") 예전방식
     public void deleteSchedule(
             @PathVariable Long scheduleId,
             @RequestParam String password //post로 보안 증가 또는 @RequestBody
