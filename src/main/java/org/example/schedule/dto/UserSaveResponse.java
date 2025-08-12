@@ -12,7 +12,7 @@ public class UserSaveResponse { //사용자 생성 후, 생성된 사용자 정�
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public UserSaveResponse(Long userId, String userName, String email, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public UserSaveResponse(Long userId, String userName, String email, String password, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;

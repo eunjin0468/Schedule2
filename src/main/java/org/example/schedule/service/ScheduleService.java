@@ -1,118 +1,102 @@
 package org.example.schedule.service;
 
 import org.example.schedule.dto.*;
-import org.example.schedule.entity.Schedule;
 import lombok.RequiredArgsConstructor;
+import org.example.schedule.entity.Schedule;
+import org.example.schedule.entity.User;
+import org.example.schedule.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.example.schedule.repository.ScheduleRepository;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
+    private final UserRepository userRepository;
 
-    //일정 생성
+    //일정 저장
     @Transactional
-    public ScheduleSaveResponse saveSchedule(ScheduleSaveRequest request) {
-        Schedule schedule = new Schedule(
-                request.getTitle(),
-                request.getContent(),
-                request.getAuthor(),
-                request.getPassword()
-        );
+    public ScheduleSaveResponse saveSchedule(String title, String content, Long userId) {
+        //1. 유저 조회
+        User user = userRepository.findByIdOrElseThrow(userId);
 
-        //일정 객체를 저장소에 저장하고, 응답 DTO에 반환
-        Schedule savedSchedule = scheduleRepository.save(schedule);
-        return new  ScheduleSaveResponse(
-                savedSchedule.getId(),
-                savedSchedule.getTitle(),
-                savedSchedule.getContent(),
-                savedSchedule.getAuthor(),
-                savedSchedule.getCreatedAt(),
-                savedSchedule.getModifiedAt()
-        );
+        //2. 일정 생성
+        Schedule schedule = new Schedule(title, content);
+        schedule.setUser(user); //연관관계 설정
+        user.getSchedules().add(schedule); //양방향
 
+        //3. 저장
+        Schedule saved = scheduleRepository.save(schedule);
+
+        return new ScheduleSaveResponse(
+                saved.getScheduleId(),
+                saved.getTitle(),
+                saved.getContent(),
+                saved.getCreatedAt(),
+                saved.getModifiedAt()
+        );
     }
+
 
     //전체 일정 조회
     @Transactional(readOnly = true)
-    public List<ScheduleGetAllResponse> findAll(String author){
-        List<Schedule> schedules;
-
-        if(author == null){
-            schedules = scheduleRepository.findAll();
-        }else{
-            schedules = scheduleRepository.findByAuthor(author);
-        }
-
-        return schedules.stream()
-                .map(schedule -> new ScheduleGetAllResponse(
-                        schedule.getId(),
-                        schedule.getTitle(),
-                        schedule.getContent(),
-                        schedule.getAuthor(),
-                        schedule.getCreatedAt(),
-                        schedule.getModifiedAt()
-                ))
-                .collect(Collectors.toList());
+    public List<ScheduleGetAllResponse> findAll() {
+        return scheduleRepository.findAll()
+                .stream()
+                .map(ScheduleGetAllResponse::toDto)
+                .toList();
     }
 
-    //단건 일정 조회
-    @Transactional(readOnly = true)
-    public ScheduleGetResponse findOne(long scheduleId) {
+    //특정 일정 조회
+    public ScheduleGetResponse findById(Long scheduleId){
+        Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(scheduleId);
+        User user = findSchedule.getUser();
 
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow( //null인 id 처리
-                () -> new IllegalArgumentException(("해당 id의 일정이 없습니다."))
-        );
-        return new  ScheduleGetResponse(
-                schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContent(),
-                schedule.getAuthor(),
-                schedule.getCreatedAt(),
-                schedule.getModifiedAt()
-        );
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 스케줄이 없습니다"));
+
+
+        return new ScheduleGetResponse(findSchedule.getScheduleId(), findSchedule.getUser().getUserName(), findSchedule.getTitle(), findSchedule.getContent(), findSchedule.getCreatedAt(), findSchedule.getModifiedAt());
     }
 
     //일정 수정
     @Transactional
-    public ScheduleUpdateResponse update(Long scheduleId, ScheduleUpdateRequest request) {
+    public ScheduleUpdateResponse updateSchedule(Long scheduleId, ScheduleUpdateRequest request) {
+        // 1. 일정 조회
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalArgumentException(("해당 id의 일정이 없습니다."))
+                () -> new IllegalArgumentException("해당 id의 일정이 없습니다.")
         );
 
-        //null safe한 비밀번호 일치여부 확인
-        if(!ObjectUtils.nullSafeEquals(schedule.getPassword(),request.getPassword())){
+        // 2. 유저 조회
+        User user = userRepository.findById(request.getUserId()).orElseThrow(
+                () -> new IllegalArgumentException("해당 id의 유저가 없습니다.")
+        );
+
+        // 3. 비밀번호 검증
+        if (!ObjectUtils.nullSafeEquals(user.getPassword(), request.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-        //더티체킹
-        schedule.updateTitleAuthor(
-                request.getTitle(), request.getAuthor()
-        );
+
+        // 연관관계 포함해서 일정 업데이트
+        schedule.updateSchedule(request.getTitle(), request.getContent(),user);
+
         return new ScheduleUpdateResponse(
                 schedule.getTitle(),
-                schedule.getAuthor(),
-                schedule.getPassword()
+                schedule.getContent()
         );
     }
 
-    //일정 삭제
-    @Transactional
-    public void deleteOne(Long scheduleId, String password) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalArgumentException(("해당 id의 일정이 없습니다."))
-        );
-        if (!ObjectUtils.nullSafeEquals(password, schedule.getPassword())) {
-            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
-        }
-        scheduleRepository.deleteById(scheduleId);
+
+
+    //특정 일정 삭제
+    public void delete(Long scheduleId){
+        Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(scheduleId);
+        scheduleRepository.delete(findSchedule);
     }
 }

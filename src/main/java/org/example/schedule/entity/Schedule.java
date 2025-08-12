@@ -3,37 +3,40 @@ package org.example.schedule.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "schedule")
 public class Schedule extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long scheduleId;
+
+    @Column(nullable = false)
     private String title;
+
+    @Column(columnDefinition = "longtext")
     private String content;
-    private String author;
-    private String password;
+
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
 
     public Schedule(
             String title,
-            String content,
-            String author,
-            String password
+            String content
     ){
         this.title = title;
         this.content = content;
-        this.author = author;
-        this.password = password;
     }
 
-
-    //update method
-    public void updateTitleAuthor(String title, String author){
+    public void updateSchedule(String title, String content, User user) {
         this.title = title;
-        this.author = author;
+        this.content = content;
+        this.user = user;
     }
-
 }

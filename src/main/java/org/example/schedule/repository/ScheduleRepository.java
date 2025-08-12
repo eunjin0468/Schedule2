@@ -2,10 +2,11 @@ package org.example.schedule.repository;
 
 import org.example.schedule.entity.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-
-    List<Schedule> findByAuthor(String author);
+    default Schedule findByIdOrElseThrow(Long scheduleId) {
+        return findById(scheduleId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist scheduleId = " + scheduleId));
+    }
 }
