@@ -15,6 +15,7 @@ public class ScheduleController {
     @Autowired
     private final ScheduleService scheduleService;
 
+    //일정 등록
     @PostMapping("/schedules")
     public ResponseEntity<ScheduleSaveResponse> saveSchedule(
             @RequestBody ScheduleSaveRequest request
@@ -30,7 +31,7 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleService.findAll(author));
     }
 
-    //단건 일정  조회
+    //단건 일정 조회
     @GetMapping("/schedules/{scheduleId}")
     public ResponseEntity<ScheduleGetResponse> getSchedule(
             @PathVariable Long scheduleId //null가능
@@ -38,6 +39,7 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleService.findOne(scheduleId));
     }
 
+    //일정 수정
     @PutMapping("/schedules/{scheduleId}")
     public ResponseEntity<ScheduleUpdateResponse> updateSchedule(
             @PathVariable Long scheduleId,
@@ -46,6 +48,7 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleService.update(scheduleId, request));
     }
 
+    //일정 삭제
     @DeleteMapping("/schedules/{scheduleId}")
     public void deleteSchedule(
             @PathVariable Long scheduleId,

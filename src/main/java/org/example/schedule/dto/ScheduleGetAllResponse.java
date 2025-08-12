@@ -3,11 +3,9 @@ package org.example.schedule.dto;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
-public class ScheduleGetAllResponse {
-
+public class ScheduleGetAllResponse { // 특정 일정 정보를 조회하여 클라이언트에 전달하는 응답 DTO
     private final Long id;
     private final String title;
     private final String content;

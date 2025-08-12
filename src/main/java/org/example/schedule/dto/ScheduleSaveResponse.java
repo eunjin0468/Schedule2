@@ -5,8 +5,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class ScheduleSaveResponse {
-
+public class ScheduleSaveResponse { //일정 생성 완료 후 서버가 클라이언트에 반환하는 응답 DTO
     private final Long id;
     private final String title;
     private final String content;

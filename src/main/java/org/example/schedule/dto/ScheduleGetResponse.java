@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 
 @Getter
-public class ScheduleGetResponse {
+public class ScheduleGetResponse { //단건 일정 조회 API에서 반환하는 응답 DTO
     private final Long id;
     private final String title;
     private final String content;
