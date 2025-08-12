@@ -66,5 +66,4 @@ public class UserController {
         //controller -> service 호출
         userService.deleteOne(userId, request);
     }
-
 }

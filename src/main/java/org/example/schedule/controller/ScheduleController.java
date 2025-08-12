@@ -66,37 +66,4 @@ public class ScheduleController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    //전체 일정 조회
-//    @GetMapping("/schedules")
-//    public ResponseEntity<List<ScheduleGetAllResponse>> getSchedules(
-//            @RequestParam(required = false) String author //작성자명 포함 필수 아님
-//    ){
-//        return ResponseEntity.ok(scheduleService.findAll(author));
-//    }
-
-//    //단건 일정 조회
-//    @GetMapping("/schedules/{scheduleId}")
-//    public ResponseEntity<ScheduleGetResponse> getSchedule(
-//            @PathVariable Long scheduleId //null가능
-//    ){
-//        return ResponseEntity.ok(scheduleService.findOne(scheduleId));
-//    }
-//
-//    //일정 수정
-//    @PutMapping("/schedules/{scheduleId}")
-//    public ResponseEntity<ScheduleUpdateResponse> updateSchedule(
-//            @PathVariable Long scheduleId,
-//            @RequestBody ScheduleUpdateRequest request
-//    ){
-//        return ResponseEntity.ok(scheduleService.update(scheduleId, request));
-//    }
-//
-//    //일정 삭제
-//    @DeleteMapping("/schedules/{scheduleId}")
-//    public void deleteSchedule(
-//            @PathVariable Long scheduleId,
-//            @RequestParam String password //post로 보안 증가 또는 @RequestBody
-//    ){
-//        scheduleService.deleteOne(scheduleId, password);
-//    }
 }
