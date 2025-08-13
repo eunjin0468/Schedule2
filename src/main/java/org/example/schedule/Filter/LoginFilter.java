@@ -30,6 +30,7 @@ public class LoginFilter implements Filter {
             httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
             return;
         }
+        request.setAttribute("userId", session.getAttribute("userId"));
 
         chain.doFilter(request, response); // 인증 완료
     }

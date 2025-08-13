@@ -1,5 +1,7 @@
 package org.example.schedule.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.schedule.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +16,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScheduleController {
     @Autowired
-    private final ScheduleService scheduleService;
+    private ScheduleService scheduleService;
 
     //일정 등록
     @PostMapping("/schedules")
     public ResponseEntity<ScheduleSaveResponse> saveSchedule(
-            @RequestBody ScheduleSaveRequest request
+            @Valid @RequestBody ScheduleSaveRequest request,
+            HttpServletRequest httpRequest
     ){
-        ScheduleSaveResponse response =
-                scheduleService.saveSchedule(
-                        request.getTitle(),
-                        request.getContent(),
-                        request.getUserId()
-                );
+        Long userId = (Long) httpRequest.getAttribute("userId"); // 로그인한 유저 ID
+
+        ScheduleSaveResponse response = scheduleService.saveSchedule(
+                request.getTitle(),
+                request.getContent(),
+                userId // 여전히 필요
+        );
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -54,7 +58,7 @@ public class ScheduleController {
     @PutMapping("/schedules/{scheduleId}")
     public ResponseEntity<ScheduleUpdateResponse> updateSchedule(
             @PathVariable Long scheduleId,
-            @RequestBody ScheduleUpdateRequest request
+             @Valid @RequestBody ScheduleUpdateRequest request
     ){
         return ResponseEntity.ok(scheduleService.updateSchedule(scheduleId, request));
     }

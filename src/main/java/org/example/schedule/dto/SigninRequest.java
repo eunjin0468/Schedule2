@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class SigninRequest {
     private String email;
-    private String userName;
+    private String password;
 }

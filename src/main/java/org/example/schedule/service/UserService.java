@@ -24,9 +24,6 @@ public class UserService {
     @Transactional
     public UserSaveResponse save(String userName, String email, String password) {
         User user = new User(userName, email, password);
-        user.setUserName(userName);
-        user.setEmail(email);
-        user.setPassword(password);
         User savedUser = userRepository.save(user);
 
         return new UserSaveResponse(
@@ -69,21 +66,12 @@ public class UserService {
         return dtos;
     }
 
-
-    //특정 유저 정보 조회
-    public UserResponse findByEmailAndUserName(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
-
-        Long userId = (Long) session.getAttribute("userId");
-
+    public UserResponse findById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
-
         return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getCreatedAt(), user.getModifiedAt());
     }
+
 
     //유저 정보 수정
     @Transactional
@@ -94,7 +82,7 @@ public class UserService {
 
         // 비밀번호 검증
         if (!ObjectUtils.nullSafeEquals(user.getPassword(), request.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
         }
 
         // 연관관계 포함해서 일정 업데이트
@@ -106,10 +94,13 @@ public class UserService {
         );
     }
 
+
+    //유저 정보 삭제
     @Transactional
     public void deleteOne(Long userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalStateException("해당 id의 유저 정보가 없습니다."));
+                () -> new IllegalStateException("해당 id의 유저 정보가 없습니다.")
+        );
 
         // 비밀번호 검증
         if (!ObjectUtils.nullSafeEquals(user.getPassword(), request.getPassword())) {

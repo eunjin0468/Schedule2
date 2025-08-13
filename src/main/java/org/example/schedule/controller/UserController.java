@@ -1,14 +1,14 @@
 package org.example.schedule.controller;
 
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.PerformanceSensitive;
 import org.example.schedule.dto.*;
 import org.example.schedule.entity.User;
 import org.example.schedule.repository.UserRepository;
 import org.example.schedule.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +19,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-    @Autowired
+
     private final UserService userService;
     private final UserRepository userRepository;
 
     // 회원가입
     @PostMapping("/users/signup")
-    public ResponseEntity<UserSaveResponse> signUp(@RequestBody UserSaveRequest requestDto) {
+    public ResponseEntity<UserSaveResponse> signUp(@Valid @RequestBody UserSaveRequest requestDto) {
         UserSaveResponse userSaveResponse =
                 userService.save(
                         requestDto.getUserName(),
@@ -39,10 +39,13 @@ public class UserController {
     //로그인
     @PostMapping("/users/signin")
     public ResponseEntity<String> signin(@RequestBody SigninRequest request, HttpServletRequest httpRequest) {
-        User user = userRepository.findByEmailAndUserName(request.getEmail(), request.getUserName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다."));
 
-        // 비밀번호 체크 대신 이메일과 userName으로 로그인 승인 (요구사항에 맞게)
+        if (!user.getPassword().equals(request.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다.");
+        }
+
         HttpSession session = httpRequest.getSession(true);
         session.setAttribute("userId", user.getUserId());
 
@@ -57,10 +60,9 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
         }
         Long userId = (Long) session.getAttribute("userId");
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+        UserResponse userResponse = userService.findById(userId);
 
-        return ResponseEntity.ok(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getCreatedAt(),user.getModifiedAt()));
+        return ResponseEntity.ok(userResponse);
     }
 
     //로그아웃
@@ -75,29 +77,43 @@ public class UserController {
     //전체 유저 조회
     @GetMapping("/users")
     public ResponseEntity<List<UserGetAllResponse>> getUsers(
-            @RequestParam(required = false) String userName
+            @RequestParam(required = false) String userName,
+            HttpServletRequest request
     ) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인이 필요합니다.");
+        }
         List<UserGetAllResponse> response = userService.findAll(userName);
         return ResponseEntity.ok(response);
     }
 
-    //유저 정보 수정
-    @PutMapping("/users/{userId}")
+    //유저 정보 수정 (세션에서 userId 추출)
+    @PutMapping("/users")
     public ResponseEntity<UserUpdateResponse> updateUser(
-            @PathVariable Long userId,
-            @RequestBody UserUpdateRequest request
+            @RequestBody UserUpdateRequest request,
+            HttpServletRequest httpRequest
     ) {
-        //controller -> service 호출
+        HttpSession session = httpRequest.getSession(false);
+        if(session == null || session.getAttribute("userId") == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인이 필요햡니다");
+        }
+        Long userId = (Long) session.getAttribute("userId");
         return ResponseEntity.ok(userService.update(userId, request));
     }
 
-    //유저 정보 삭제
-    @DeleteMapping("/users/{userId}")
-    public void deleteUser(
-            @PathVariable Long userId,
-            @RequestBody UserUpdateRequest request
+    //유저 정보 삭제 (세션에서 userId 추출)
+    @DeleteMapping("/users")
+    public ResponseEntity<String> deleteUser(
+            @RequestBody UserUpdateRequest request,
+            HttpServletRequest httpRequest
     ) {
-        //controller -> service 호출
+        HttpSession session = httpRequest.getSession(false);
+        if(session == null || session.getAttribute("userId") == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인이 필요합니다.");
+        }
+        Long userId = (Long) session.getAttribute("userId");
         userService.deleteOne(userId, request);
+        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
     }
 }
