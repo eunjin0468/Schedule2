@@ -1,8 +1,7 @@
 package org.example.schedule.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.example.schedule.config.PasswordEncoder;
 import org.example.schedule.dto.*;
 import org.example.schedule.entity.User;
 import org.springframework.http.HttpStatus;
@@ -19,13 +18,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     //유저 등록 (회원가입)
     @Transactional
     public UserSaveResponse save(String userName, String email, String password) {
-        User user = new User(userName, email, password);
+
+        // 비밀번호 암호화
+        String encodePassword = passwordEncoder.encode(password);
+
+        // 암호화된 비밀번호로 유저 객체 생성
+        User user = new User(userName, email, encodePassword);
+
+        // 저장
         User savedUser = userRepository.save(user);
 
+        // 응답 객체 반환
         return new UserSaveResponse(
                 savedUser.getUserId(),
                 savedUser.getUserName(),

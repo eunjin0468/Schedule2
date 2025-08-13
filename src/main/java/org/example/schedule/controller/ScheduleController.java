@@ -29,7 +29,7 @@ public class ScheduleController {
         ScheduleSaveResponse response = scheduleService.saveSchedule(
                 request.getTitle(),
                 request.getContent(),
-                userId // 여전히 필요
+                userId
         );
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

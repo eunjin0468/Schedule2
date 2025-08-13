@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.schedule.config.PasswordEncoder;
 import org.example.schedule.dto.*;
 import org.example.schedule.entity.User;
 import org.example.schedule.repository.UserRepository;
@@ -22,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 회원가입
     @PostMapping("/users/signup")
@@ -42,7 +44,8 @@ public class UserController {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다."));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        // 암호화된 비밀번호와 입력된 비밀번호 비교
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
