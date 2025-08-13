@@ -1,5 +1,7 @@
 package org.example.schedule.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.example.schedule.dto.*;
 import org.example.schedule.entity.User;
@@ -12,18 +14,28 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
 
-    //유저 등록
-    public UserSaveResponse signUp(String userName, String email, String password) {
+    //유저 등록 (회원가입)
+    @Transactional
+    public UserSaveResponse save(String userName, String email, String password) {
         User user = new User(userName, email, password);
+        user.setUserName(userName);
+        user.setEmail(email);
+        user.setPassword(password);
         User savedUser = userRepository.save(user);
-        return new UserSaveResponse(savedUser.getUserId(), savedUser.getUserName(), savedUser.getEmail(), savedUser.getPassword(), savedUser.getCreatedAt(), savedUser.getModifiedAt());
+
+        return new UserSaveResponse(
+                savedUser.getUserId(),
+                savedUser.getUserName(),
+                savedUser.getEmail(),
+                savedUser.getCreatedAt(),
+                savedUser.getModifiedAt()
+        );
     }
 
     //전체 유저 정보 조회
@@ -59,18 +71,18 @@ public class UserService {
 
 
     //특정 유저 정보 조회
-    public UserGetResponse findById(Long id) {
-
-        Optional<User> optionalUser = userRepository.findById(id);
-
-        // NPE 방지
-        if (optionalUser.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
+    public UserResponse findByEmailAndUserName(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
         }
 
-        User findUser = optionalUser.get();
+        Long userId = (Long) session.getAttribute("userId");
 
-        return new UserGetResponse(findUser.getUserId(), findUser.getUserName(), findUser.getEmail(), findUser.getCreatedAt(), findUser.getModifiedAt());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+
+        return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getCreatedAt(), user.getModifiedAt());
     }
 
     //유저 정보 수정
