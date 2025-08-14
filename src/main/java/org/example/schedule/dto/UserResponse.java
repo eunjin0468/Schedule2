@@ -12,7 +12,7 @@ public class UserResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public UserResponse(Long userId, String userName, String email,  LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public UserResponse(Long userId, String userName, String email, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.userId = userId;
         this. userName = userName;
         this.email = email;

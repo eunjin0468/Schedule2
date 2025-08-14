@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.schedule.dto.*;
+import org.example.schedule.entity.Schedule;
+import org.example.schedule.entity.User;
+import org.example.schedule.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +14,15 @@ import org.springframework.web.bind.annotation.*;
 import org.example.schedule.service.ScheduleService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
+    @Autowired
+    private UserService userService;
 
     //일정 등록
     @PostMapping("/schedules")
@@ -65,9 +71,22 @@ public class ScheduleController {
 
     //특정 일정 삭제
     @DeleteMapping("/schedules/{scheduleId}")
-    public ResponseEntity<Object> delete(@PathVariable Long scheduleId){
-        scheduleService.delete(scheduleId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+    public ResponseEntity<ScheduleDeleteResponse> delete(@PathVariable Long scheduleId,
+                                                         @Valid @RequestBody ScheduleDeleteRequest request) {
+        // scheduleId가 null인 경우 예외 처리
+        if (scheduleId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ScheduleDeleteResponse("잘못된 요청: scheduleId는 필수입니다."));
+        }
 
+        Optional<Schedule> optionalSchedule = scheduleService.findScheduleById(scheduleId);
+
+        if (optionalSchedule.isPresent()) {
+            scheduleService.delete(scheduleId);
+            return ResponseEntity.ok(new ScheduleDeleteResponse("일정 삭제가 완료되었습니다."));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ScheduleDeleteResponse("일정을 찾을 수 없습니다."));
+        }
+    }
 }

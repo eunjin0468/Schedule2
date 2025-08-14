@@ -15,8 +15,7 @@ import java.util.List;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     @Column(nullable = false, unique = true)
@@ -26,7 +25,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    //양방향일경우
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private final List<Schedule> schedules = new ArrayList<>();
 

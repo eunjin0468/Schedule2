@@ -1,7 +1,5 @@
 package org.example.schedule.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.example.schedule.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.example.schedule.entity.Schedule;
@@ -11,16 +9,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.example.schedule.repository.ScheduleRepository;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+
 
     //일정 저장
     @Transactional
@@ -52,9 +51,10 @@ public class ScheduleService {
     }
 
     //특정 일정 조회
-    public ScheduleGetResponse findById(Long scheduleId){
+    public ScheduleGetResponse findById(Long scheduleId) {
         Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(scheduleId);
         User user = findSchedule.getUser();
+
 
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 스케줄이 없습니다"));
@@ -80,11 +80,18 @@ public class ScheduleService {
         );
     }
 
+    public Optional<Schedule> findScheduleById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId);
+    }
 
+    // 특정 일정 삭제
+    @Transactional
+    public void delete(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findByIdOrElseThrow(scheduleId);
 
-    //특정 일정 삭제
-    public void delete(Long scheduleId){
-        Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(scheduleId);
-        scheduleRepository.delete(findSchedule);
+        schedule.getUser().getSchedules().remove(schedule);
+
+        scheduleRepository.delete(schedule);
+
     }
 }

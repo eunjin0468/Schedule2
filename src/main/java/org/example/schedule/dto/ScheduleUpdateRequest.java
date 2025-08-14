@@ -1,10 +1,10 @@
 package org.example.schedule.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
-import java.util.UUID;
 
 @Getter
 public class ScheduleUpdateRequest { //기존 일정을 수정할 때 클라이언트가 서버로 보내는 요청 데이터 구조 (요청 DTO)
@@ -16,6 +16,9 @@ public class ScheduleUpdateRequest { //기존 일정을 수정할 때 클라이�
 
     @Size(max=500)
     private final String content;
+
+    @NotNull(message = "password는 필수입니다")
+    private String password;
 
     public ScheduleUpdateRequest(String title, String content) {
         this.title = title;
