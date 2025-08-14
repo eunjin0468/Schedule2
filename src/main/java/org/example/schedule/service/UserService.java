@@ -89,7 +89,7 @@ public class UserService {
         );
 
         // 비밀번호 검증
-        if (!ObjectUtils.nullSafeEquals(user.getPassword(), request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
         }
 
@@ -98,7 +98,8 @@ public class UserService {
 
         return new UserUpdateResponse(
                 request.getUserName(),
-                request.getEmail()
+                request.getEmail(),
+                "회원 정보가 성공적으로 수정되었습니다."
         );
     }
 
@@ -111,9 +112,10 @@ public class UserService {
         );
 
         // 비밀번호 검증
-        if (!ObjectUtils.nullSafeEquals(user.getPassword(), request.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
         }
+
         userRepository.deleteById(userId);
     }
 

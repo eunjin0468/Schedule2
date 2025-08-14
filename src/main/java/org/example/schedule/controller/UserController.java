@@ -1,6 +1,5 @@
 package org.example.schedule.controller;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -70,11 +69,12 @@ public class UserController {
 
     //로그아웃
     @PostMapping("/users/logout")
-    public void logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
+        return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 
     //전체 유저 조회
