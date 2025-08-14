@@ -11,13 +11,15 @@ public class UserSaveResponse { //사용자 생성 후, 생성된 사용자 정�
     private String email;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private String message;
 
-    public UserSaveResponse(Long userId, String userName, String email, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public UserSaveResponse(Long userId, String userName, String email, LocalDateTime createdAt, LocalDateTime modifiedAt,  String message ) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+        this.message = message;
     }
 
     public UserSaveResponse(Long userId) {

@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.example.schedule.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -39,7 +38,8 @@ public class UserService {
                 savedUser.getUserName(),
                 savedUser.getEmail(),
                 savedUser.getCreatedAt(),
-                savedUser.getModifiedAt()
+                savedUser.getModifiedAt(),
+                "회원 가입이 완료되었습니다."
         );
     }
 

@@ -26,6 +26,8 @@ public class UserSaveRequest { //새로운 사용자 정보를 서버에 저장 
     @Email(message = "유효한 이메일 형식이 아닙니다. 예: example@domain.com")
     private String email;
 
+
+
     public UserSaveRequest(String userName, String password, String email) {
         this.userName = userName;
         this.password = password;

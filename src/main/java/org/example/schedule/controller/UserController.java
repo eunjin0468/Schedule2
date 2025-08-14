@@ -39,7 +39,7 @@ public class UserController {
 
     //로그인
     @PostMapping("/users/signin")
-    public ResponseEntity<String> signin(@RequestBody SigninRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<String> signin(@Valid @RequestBody SigninRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다."));
 
