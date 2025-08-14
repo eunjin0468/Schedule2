@@ -112,4 +112,8 @@
 | Request Body | 로그아웃 되었습니다. |
 | Error  | 401 Unauthorized - 비로그인 사용자가 접근 시 |
 
-[diagram.drawio](../Desktop/diagram.drawio)
+---
+
+### 📌ERD 다이어그램
+![](/diagram.png)
+
