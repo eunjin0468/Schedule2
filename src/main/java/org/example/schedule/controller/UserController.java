@@ -94,7 +94,7 @@ public class UserController {
     //유저 정보 수정 (세션에서 userId 추출)
     @PutMapping("/users")
     public ResponseEntity<UserUpdateResponse> updateUser(
-            @RequestBody UserUpdateRequest request,
+            @Valid @RequestBody UserUpdateRequest request,
             HttpServletRequest httpRequest
     ) {
         HttpSession session = httpRequest.getSession(false);
