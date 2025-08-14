@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.schedule.dto.*;
 import org.example.schedule.entity.Schedule;
-import org.example.schedule.entity.User;
 import org.example.schedule.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
