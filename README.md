@@ -28,8 +28,7 @@
 | --- | --- |
 | URL | GET /schedules |
 | Response | 200 OK |
-| Response Body | 일정 목록 배열   \
-- scheduleId (Long)   \- title (String)   \- content (String)   \-createdAt (LocalTime)   \- modifiedAt (LocalTime) |
+| Response Body | 일정 목록 배열   \- scheduleId (Long)   \- title (String)   \- content (String)   \-createdAt (LocalTime)   \- modifiedAt (LocalTime) |
 | Error | 401 Unauthorized - 비로그인 사용자가 접근 시 |
 
 ### **1.3 일정 단건 조회**
